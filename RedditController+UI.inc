@@ -638,6 +638,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
     int selectedRow = [tableView selectedRow];
     if (selectedRow >= 0 && selectedRow < [posts count]) {
+        RDPost *post = [posts objectAtIndex:selectedRow];
         [statusText setString:[NSString stringWithFormat:@"Selected: %@", [post title]]];
     }
 }
