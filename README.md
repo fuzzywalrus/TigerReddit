@@ -1,5 +1,14 @@
 # TigerReddit
 
+A complete rewrite in Native-C, that's dependency free! Features a nice simple GUI that lets you quickly load browse reddit much faster than you can do with any web browser. Just punch in a subreddit it'll instantly pull the text and load the images ASAP. Each post is double clickable. 
+
+Preferences allow you to set the amount of comments, and there's even basic video support using Mplayer so you can surf and watch videos on Reddit. Currently, this only a reader thus doesn't have the ability to post, or search.
+
+Right click to save images. It's pretty useable and good demo application to show off the modern internet on retro Macs.   
+
+
+# Version 1.0 (prefork) 
+
 A Vibe-coded native Reddit client for Mac OS X 10.4 Tiger, built with Objective-C and Python 3.11. Features image viewing, video downloading, comment browsing, and modern Reddit API support on vintage PowerPC and Intel Macs.
 
 
