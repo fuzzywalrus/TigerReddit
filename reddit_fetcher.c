@@ -700,18 +700,9 @@ static void parse_post(cJSON *item, RedditPost *post) {
     post->is_self = (f && cJSON_IsTrue(f)) ? 1 : 0;
 
     f = cJSON_GetObjectItem(item, "selftext");
-    if (f && cJSON_IsString(f) && post->is_self) {
-        /* Truncate to 300 chars like Python version */
-        size_t len = strlen(f->valuestring);
-        if (len > 300) {
-            post->selftext = malloc(301);
-            if (post->selftext) {
-                memcpy(post->selftext, f->valuestring, 300);
-                post->selftext[300] = '\0';
-            }
-        } else {
-            post->selftext = strdup_safe(f->valuestring);
-        }
+    if (f && cJSON_IsString(f) && f->valuestring[0]) {
+        /* Keep full self text — gallery and self posts both can have it */
+        post->selftext = strdup_safe(f->valuestring);
     } else {
         post->selftext = strdup_safe("");
     }

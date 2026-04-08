@@ -43,7 +43,6 @@
         permalink = [@"/" stringByAppendingString:permalink];
     }
 
-    NSLog(@"Cleaned permalink: %@", permalink);
 
     NS_DURING
     {
@@ -52,7 +51,6 @@
         if (result.success && result.json) {
             NSString *jsonString = [NSString stringWithUTF8String:result.json];
             jsonString = [jsonString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            NSLog(@"Comments JSON length: %d", [jsonString length]);
 
             if ([jsonString hasPrefix:@"["] || [jsonString hasPrefix:@"{"]) {
                 [self showCommentsWindow:jsonString forPost:post];
@@ -81,7 +79,6 @@
 }
 
 - (void)showCommentsWindow:(NSString *)jsonString forPost:(RDPost *)post {
-    NSLog(@"Creating comments window...");
 
     @try {
         NSRect windowFrame = NSMakeRect(100, 100, 600, 400);
@@ -112,7 +109,6 @@
         [textView release];
         [scrollView release];
 
-        NSLog(@"Comments window created successfully");
     }
     @catch (NSException *exception) {
         NSLog(@"Exception creating comments window: %@", [exception reason]);

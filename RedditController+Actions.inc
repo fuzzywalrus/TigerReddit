@@ -53,7 +53,6 @@
         RDPost *post = [posts objectAtIndex:selectedRow];
         NSString *cType = [post contentType];
 
-        NSLog(@"Opening content type: %@ for post: %@", cType, [post title]);
 
         if ([cType isEqualToString:@"video"] || [post isVideo]) {
             /* Handle video content (including NSFW from redgifs, etc.) */
@@ -286,7 +285,6 @@
     [task setStandardError:errPipe];
     [task setCurrentDirectoryPath:desktopPath];
 
-    NSLog(@"Running shell command: %@", fullCommand);
 
     [task launch];
 

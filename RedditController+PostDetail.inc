@@ -232,7 +232,6 @@
                 }
             }
 
-            NSLog(@"Detail image: %@ (%gx%g pixels)", imgPath, pixW, pixH);
 
             if (pixW > 0 && pixH > 0) {
                 float maxW = 600;
@@ -245,7 +244,6 @@
                 displayW = pixW * scale;
                 displayH = pixH * scale;
 
-                NSLog(@"Detail image display: %gx%g (scale %g)", displayW, displayH, scale);
 
                 {
                     float xPos = 20 + (contentWidth - displayW) / 2;
@@ -330,24 +328,41 @@
         yOffset -= 12;
     }
 
-    /* Self text */
+    /* Self text — use NSTextView for proper multi-line wrapping */
     if ([post selfText] && [[post selfText] length] > 0) {
-        NSTextField *selfLabel = [[[NSTextField alloc] initWithFrame:NSMakeRect(20, yOffset - 100, contentWidth, 100)] autorelease];
-        [selfLabel setStringValue:[post selfText]];
-        [selfLabel setFont:[NSFont systemFontOfSize:12]];
-        [selfLabel setBezeled:NO];
-        [selfLabel setDrawsBackground:NO];
-        [selfLabel setEditable:NO];
-        [selfLabel setSelectable:YES];
-        [selfLabel sizeToFit];
+        /* Estimate height: ~80 chars per line at 12pt, ~15px per line */
+        float charsPerLine = contentWidth / 7.0;
+        float numLines = (float)[[post selfText] length] / charsPerLine + 1;
+        float textHeight = numLines * 16;
+        if (textHeight < 30) textHeight = 30;
+        if (textHeight > 2000) textHeight = 2000;
+
         {
-            NSRect f = [selfLabel frame];
-            f.origin.y = yOffset - f.size.height;
-            f.size.width = contentWidth;
-            [selfLabel setFrame:f];
-            yOffset = f.origin.y - 10;
+            NSScrollView *textScroll = [[[NSScrollView alloc] initWithFrame:
+                NSMakeRect(20, yOffset - textHeight, contentWidth, textHeight)] autorelease];
+            NSTextView *selfView = [[[NSTextView alloc] initWithFrame:
+                NSMakeRect(0, 0, contentWidth, textHeight)] autorelease];
+            [selfView setString:[post selfText]];
+            [selfView setFont:[NSFont systemFontOfSize:12]];
+            [selfView setEditable:NO];
+            [selfView setSelectable:YES];
+            [selfView setDrawsBackground:NO];
+            [[selfView textContainer] setContainerSize:NSMakeSize(contentWidth - 10, 10000)];
+            [[selfView textContainer] setWidthTracksTextView:YES];
+
+            /* Let the text view calculate its actual height */
+            [[selfView layoutManager] glyphRangeForTextContainer:[selfView textContainer]];
+            {
+                NSRect usedRect = [[selfView layoutManager] usedRectForTextContainer:[selfView textContainer]];
+                textHeight = usedRect.size.height + 10;
+                if (textHeight < 30) textHeight = 30;
+            }
+
+            /* No scroll — just size to fit */
+            [selfView setFrame:NSMakeRect(20, yOffset - textHeight, contentWidth, textHeight)];
+            [docView addSubview:selfView];
+            yOffset -= (textHeight + 10);
         }
-        [docView addSubview:selfLabel];
     }
 
     /* Link URL — clickable button */
