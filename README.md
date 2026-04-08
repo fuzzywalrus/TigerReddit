@@ -4,7 +4,7 @@ A native Reddit client for Mac OS X 10.4 Tiger and 10.5 Leopard on PowerPC.
 
 ![TigerReddit running on a PowerMac G4](resources/img/app-preview.jpg)
 
-Browse subreddits, view images, read threaded comments, and watch videos — all from a lightweight Cocoa app that runs on vintage Macs. No web browser needed.
+A complete rewrite in native C that's dependency-free. Features a nice, simple GUI that lets you quickly load and browse Reddit much faster than you can with any web browser. Just punch in a subreddit, and it'll instantly pull the text and load the images ASAP. Each post is double-clickable, opening in a new window, as this was the pre-tabbed interface era.
 
 This is a ground-up native C rewrite of [Harry Fornasier's original TigerReddit](https://github.com/harryfornasier/TigerReddit), which used Python for Reddit API access. This version has zero runtime dependencies — just download, unzip, and run.
 
@@ -16,7 +16,11 @@ This is a ground-up native C rewrite of [Harry Fornasier's original TigerReddit]
 - **Save images** — right-click any image in a post to save it to your Desktop
 - **Configurable** — set your default subreddit, comment depth, and cache age in Preferences
 
+Preferences allow you to set the number of comments, and there's even basic video support using MPlayer, so you can surf and watch videos on Reddit. Currently, this is only a reader — it doesn't have the ability to post or search.
+
 Video playback requires [MPlayer OSX Extended](https://macintoshgarden.org/apps/mplayer-os-x) (free). Everything else works without it.
+
+The icon was made using Blender. I'm terrible at 3D, but I figured it gave it that "2004" shareware vibe — if any actual icon artists are out there, @ me.
 
 ## System requirements
 
@@ -28,6 +32,8 @@ Video playback requires [MPlayer OSX Extended](https://macintoshgarden.org/apps/
 Download the latest zip from [Releases](https://github.com/fuzzywalrus/TigerReddit/releases), unzip, and drag `TigerReddit.app` to your Applications folder.
 
 Older browsers like TenFourFox may get stuck on a spinning loader when downloading from GitHub. If that happens, grab it from [Macintosh Garden](https://macintoshgarden.org/apps/tigerreddit) instead.
+
+Version 2.0.1 fixes a missing dependency issue, as this was originally built with Tigerbrew.
 
 ## Building from source
 
@@ -49,6 +55,8 @@ open TigerReddit/TigerReddit.app
 
 Original TigerReddit by Harry Fornasier.
 Native C port by Greg Gant ([greggant.com](https://greggant.com)).
+
+This client is not affiliated with Reddit in any shape or form.
 
 ## License
 
