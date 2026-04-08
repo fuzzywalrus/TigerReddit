@@ -137,7 +137,7 @@ $(BUNDLE_NAME): $(ALL_OBJECTS)
 	@echo '    <key>CFBundlePackageType</key>' >> $(BUNDLE_NAME)/Contents/Info.plist
 	@echo '    <string>APPL</string>' >> $(BUNDLE_NAME)/Contents/Info.plist
 	@echo '    <key>CFBundleVersion</key>' >> $(BUNDLE_NAME)/Contents/Info.plist
-	@echo '    <string>2.0</string>' >> $(BUNDLE_NAME)/Contents/Info.plist
+	@echo '    <string>2.0.1</string>' >> $(BUNDLE_NAME)/Contents/Info.plist
 	@echo '    <key>CFBundleIconFile</key>' >> $(BUNDLE_NAME)/Contents/Info.plist
 	@echo '    <string>reddit.icns</string>' >> $(BUNDLE_NAME)/Contents/Info.plist
 	@echo '    <key>LSMinimumSystemVersion</key>' >> $(BUNDLE_NAME)/Contents/Info.plist
@@ -147,6 +147,13 @@ $(BUNDLE_NAME): $(ALL_OBJECTS)
 	@if [ -f reddit.icns ]; then \
 		cp reddit.icns $(BUNDLE_NAME)/Contents/Resources/; \
 		echo "Icon bundled"; \
+	fi
+	@if [ -f ca-bundle.crt ]; then \
+		cp ca-bundle.crt $(BUNDLE_NAME)/Contents/Resources/; \
+		echo "CA bundle bundled"; \
+	elif [ -f /usr/local/opt/curl-ca-bundle/share/ca-bundle.crt ]; then \
+		cp /usr/local/opt/curl-ca-bundle/share/ca-bundle.crt $(BUNDLE_NAME)/Contents/Resources/; \
+		echo "CA bundle copied from Tigerbrew"; \
 	fi
 	@if [ -f remux_fmp4.py ]; then \
 		echo "Bundling remux script..."; \

@@ -703,6 +703,15 @@ int main(int argc, char *argv[]) {
     RedditController *controller;
     int initResult;
 
+    /* Point libcurl to the bundled CA certificate bundle */
+    {
+        NSString *caPath = [[NSBundle mainBundle] pathForResource:@"ca-bundle" ofType:@"crt"];
+        if (caPath) {
+            setenv("TIGERREDDIT_CA_BUNDLE", [caPath UTF8String], 1);
+            NSLog(@"CA bundle: %@", caPath);
+        }
+    }
+
     /* Initialize the native C Reddit fetcher (libcurl, cache dir, etc.) */
     initResult = reddit_fetcher_init();
     if (initResult != 0) {

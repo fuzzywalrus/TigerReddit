@@ -6,7 +6,7 @@
 - (void)showAbout:(id)sender {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:@"TigerReddit"];
-    [alert setInformativeText:@"A native Reddit client for Mac OS X 10.4 Tiger and 10.5 Leopard.\n\nVersion 2.0 - Native C build\nNo Python dependency required.\n\nOriginal TigerReddit by Harry Fornasier.\nNative C port by Greg Gant (greggant.com)\nBuilt with libcurl + cJSON.\n\nhttps://github.com/fuzzywalrus/TigerReddit"];
+    [alert setInformativeText:@"A native Reddit client for Mac OS X 10.4 Tiger and 10.5 Leopard.\n\nVersion 2.0.1 - Native C build\nNo Python dependency required.\n\nOriginal TigerReddit by Harry Fornasier.\nNative C port by Greg Gant (greggant.com)\nBuilt with libcurl + cJSON.\n\nhttps://github.com/fuzzywalrus/TigerReddit"];
     [alert addButtonWithTitle:@"OK"];
     [alert runModal];
     [alert release];

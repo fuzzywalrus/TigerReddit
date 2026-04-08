@@ -492,6 +492,46 @@ static char *extract_video_thumbnail(cJSON *post, const char *url) {
     return NULL;
 }
 
+/* --- Internal: CA certificate bundle path ------------------------------ */
+
+static char g_ca_bundle[MAX_PATH_LEN] = {0};
+
+static const char *get_ca_bundle(void) {
+    struct stat st;
+    if (g_ca_bundle[0]) return g_ca_bundle;
+
+    /* 1. Bundled in .app/Contents/Resources/ (set by ObjC side) */
+    if (getenv("TIGERREDDIT_CA_BUNDLE")) {
+        strncpy(g_ca_bundle, getenv("TIGERREDDIT_CA_BUNDLE"), sizeof(g_ca_bundle) - 1);
+        if (stat(g_ca_bundle, &st) == 0) return g_ca_bundle;
+    }
+
+    /* 2. Tigerbrew location */
+    if (stat("/usr/local/etc/openssl@3/cert.pem", &st) == 0) {
+        strncpy(g_ca_bundle, "/usr/local/etc/openssl@3/cert.pem", sizeof(g_ca_bundle) - 1);
+        return g_ca_bundle;
+    }
+
+    /* 3. Cache dir (we copy it there on first launch) */
+    {
+        char path[MAX_PATH_LEN];
+        snprintf(path, sizeof(path), "%s/.reddit_viewer_cache/ca-bundle.crt", get_home_dir());
+        if (stat(path, &st) == 0) {
+            strncpy(g_ca_bundle, path, sizeof(g_ca_bundle) - 1);
+            return g_ca_bundle;
+        }
+    }
+
+    /* 4. System locations */
+    if (stat("/etc/ssl/certs/ca-certificates.crt", &st) == 0) {
+        strncpy(g_ca_bundle, "/etc/ssl/certs/ca-certificates.crt", sizeof(g_ca_bundle) - 1);
+        return g_ca_bundle;
+    }
+
+    g_ca_bundle[0] = '\0';
+    return NULL;
+}
+
 /* --- Internal: HTTP fetch helper -------------------------------------- */
 
 static int http_get(const char *url, Buffer *response, long timeout_secs) {
@@ -504,6 +544,10 @@ static int http_get(const char *url, Buffer *response, long timeout_secs) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
     curl_easy_setopt(curl, CURLOPT_COOKIE, "over18=1");
+    {
+        const char *ca = get_ca_bundle();
+        if (ca) curl_easy_setopt(curl, CURLOPT_CAINFO, ca);
+    }
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, buffer_write_cb);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_secs);
@@ -535,6 +579,10 @@ static long http_download_file(const char *url, const char *filepath,
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
     curl_easy_setopt(curl, CURLOPT_COOKIE, "over18=1");
+    {
+        const char *ca = get_ca_bundle();
+        if (ca) curl_easy_setopt(curl, CURLOPT_CAINFO, ca);
+    }
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, file_write_cb);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fw);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout_secs);
