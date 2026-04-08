@@ -84,8 +84,13 @@ int reddit_fetcher_init(void);
 void reddit_fetcher_cleanup(void);
 
 /*
+ * Purge cached files older than max_age_days.
+ * Call once at startup. Returns number of files deleted.
+ */
+int reddit_cache_purge(int max_age_days);
+
+/*
  * Fetch posts from a subreddit.
- * Thumbnails are automatically downloaded and cached.
  *
  * Parameters:
  *   subreddit - e.g. "all", "programming"
@@ -135,6 +140,13 @@ DownloadResult reddit_download_image(const char *image_url,
  * Returns path to a local .mp4 file. Caller must free with download_result_free().
  */
 DownloadResult reddit_download_video(const char *video_url);
+
+/*
+ * Download and cache a single thumbnail image.
+ * Returns the local file path (caller must free) or NULL on failure.
+ * Safe to call from a timer — downloads one image at a time.
+ */
+char *reddit_cache_thumbnail(const char *thumb_url);
 
 /*
  * Download an image to the cache directory for viewing (not Desktop).

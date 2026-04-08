@@ -17,6 +17,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <time.h>
@@ -596,7 +597,7 @@ static const char *detect_image_format(const char *filepath) {
     return "jpg"; /* assume JPEG as fallback */
 }
 
-static char *cache_thumbnail(const char *thumb_url) {
+char *reddit_cache_thumbnail(const char *thumb_url) {
     unsigned int hash;
     char filepath[MAX_PATH_LEN];
     char final_path[MAX_PATH_LEN];
@@ -934,6 +935,45 @@ void reddit_fetcher_cleanup(void) {
     curl_global_cleanup();
 }
 
+int reddit_cache_purge(int max_age_days) {
+    DIR *dir;
+    struct dirent *entry;
+    struct stat st;
+    time_t now;
+    time_t max_age_secs;
+    int deleted = 0;
+    char filepath[MAX_PATH_LEN];
+
+    if (max_age_days <= 0) return 0;
+
+    ensure_cache_dir();
+    dir = opendir(g_cache_dir);
+    if (!dir) return 0;
+
+    now = time(NULL);
+    max_age_secs = (time_t)max_age_days * 86400;
+
+    while ((entry = readdir(dir)) != NULL) {
+        /* Only purge reddit_ prefixed files (our cached data) */
+        if (strncmp(entry->d_name, "reddit_", 7) != 0) continue;
+
+        snprintf(filepath, sizeof(filepath), "%s/%s", g_cache_dir, entry->d_name);
+        if (stat(filepath, &st) == 0) {
+            if (now - st.st_mtime > max_age_secs) {
+                unlink(filepath);
+                deleted++;
+            }
+        }
+    }
+
+    closedir(dir);
+    if (deleted > 0) {
+        fprintf(stderr, "DEBUG: Purged %d cached files older than %d days\n",
+                deleted, max_age_days);
+    }
+    return deleted;
+}
+
 RedditResult reddit_fetch_posts(const char *subreddit,
                                 const char *sort,
                                 int limit,
@@ -1035,25 +1075,9 @@ RedditResult reddit_fetch_posts(const char *subreddit,
 
     cJSON_Delete(root);
 
-    /* Download thumbnails */
-    fprintf(stderr, "DEBUG: Downloading thumbnails for %d posts\n", result.post_count);
-    for (i = 0; i < result.post_count; i++) {
-        RedditPost *p = &result.posts[i];
-        if (p->has_image && p->thumbnail && strncmp(p->thumbnail, "http", 4) == 0) {
-            char *local = cache_thumbnail(p->thumbnail);
-            if (local) {
-                free(p->thumbnail);
-                p->thumbnail = local;
-            }
-            /* Rate limit */
-            if (i < result.post_count - 1) {
-                struct timespec ts;
-                ts.tv_sec = 0;
-                ts.tv_nsec = RATE_LIMIT_MS * 1000000L;
-                nanosleep(&ts, NULL);
-            }
-        }
-    }
+    /* Thumbnails are NOT downloaded here — the ObjC side does it
+       asynchronously via reddit_cache_thumbnail() + NSTimer so the
+       UI can display posts immediately. */
 
     result.success = 1;
     return result;
